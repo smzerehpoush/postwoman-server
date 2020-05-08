@@ -34,4 +34,17 @@ public class TeamController {
     public ResponseEntity<List<TeamDto>> get() {
         return ResponseEntity.ok(teamService.get());
     }
+
+    @GetMapping("/{team-id}")
+    public ResponseEntity<TeamDto> get(@PathVariable("team-id") String teamId)
+            throws ServiceException {
+        return ResponseEntity.ok(teamService.get(teamId));
+    }
+
+    @PostMapping("/{team-id}/join")
+    @AuthRequired
+    public ResponseEntity<TeamDto> join(@PathVariable("team-id") String teamId)
+            throws ServiceException {
+        return ResponseEntity.ok(teamService.join(teamId, requestContext.getUser()));
+    }
 }

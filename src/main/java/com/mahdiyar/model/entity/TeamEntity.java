@@ -2,14 +2,14 @@ package com.mahdiyar.model.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import java.util.Date;
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -49,16 +49,30 @@ public class TeamEntity {
     @ManyToOne
     @JoinColumn(name = "owner_user_id")
     private UserEntity owner;
-    @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "team_members",
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "team_id")})
-    private List<UserEntity> members;
+    private Set<UserEntity> members;
 
-    public TeamEntity(String name, String description, UserEntity owner, List<UserEntity> members) {
+    public TeamEntity(String name, String description, UserEntity owner, Set<UserEntity> members) {
         this.name = name;
         this.description = description;
         this.owner = owner;
         this.members = members;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TeamEntity)) return false;
+        TeamEntity that = (TeamEntity) o;
+        return getId() == that.getId() &&
+                getUniqueId().equals(that.getUniqueId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getUniqueId());
     }
 }

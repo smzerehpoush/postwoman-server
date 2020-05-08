@@ -5,10 +5,8 @@ import com.mahdiyar.model.entity.TeamEntity;
 import com.mahdiyar.model.entity.UserEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -22,18 +20,14 @@ public class TeamDto {
     private String description;
     private int membersCount;
     private UserDto owner;
-    private List<UserDto> members;
+    private Set<UserDto> members;
 
-    public TeamDto(TeamEntity teamEntity) {
+    public TeamDto(TeamEntity teamEntity, Set<UserEntity> members) {
         this.uniqueId = teamEntity.getUniqueId();
         this.name = teamEntity.getName();
         this.description = teamEntity.getDescription();
         this.owner = new UserDto(teamEntity.getOwner());
-        final List<UserEntity> teamMembers = teamEntity.getMembers();
-        this.membersCount = teamMembers.size();
-        if (CollectionUtils.isEmpty(teamMembers))
-            this.members = Collections.emptyList();
-        else
-            this.members = teamMembers.stream().map(UserDto::new).collect(Collectors.toList());
+        this.membersCount = members.size();
+        this.members = members.stream().map(UserDto::new).collect(Collectors.toSet());
     }
 }

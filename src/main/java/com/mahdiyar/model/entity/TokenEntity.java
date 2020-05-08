@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -67,5 +68,19 @@ public class TokenEntity {
         this.expirationDate = expirationDate;
         this.ip = ip;
         this.user = user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TokenEntity)) return false;
+        TokenEntity that = (TokenEntity) o;
+        return getId().equals(that.getId()) &&
+                getUniqueId().equals(that.getUniqueId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getUniqueId());
     }
 }

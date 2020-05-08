@@ -6,6 +6,9 @@ spring:
     database: postgresql
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: false
+    show-sql: false
   datasource:
     username: postwoman
     password: postwoman

@@ -8,6 +8,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -48,4 +49,17 @@ public class UserEntity {
     @Column(name = "email", unique = true)
     private String email;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserEntity)) return false;
+        UserEntity that = (UserEntity) o;
+        return getId() == that.getId() &&
+                getUniqueId().equals(that.getUniqueId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getUniqueId());
+    }
 }
