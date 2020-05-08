@@ -64,6 +64,11 @@ public class WorkspaceEntity {
             joinColumns = {@JoinColumn(name = "workspace_id")},
             inverseJoinColumns = {@JoinColumn(name = "environment_id")})
     private Set<EnvironmentEntity> environments;
+    @ManyToMany
+    @JoinTable(name = "workspaces_users",
+            joinColumns = {@JoinColumn(name = "workspace_id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id")})
+    private Set<TeamEntity> users;
 
     public WorkspaceEntity(String name, String description, UserEntity owner) {
         this.name = name;
