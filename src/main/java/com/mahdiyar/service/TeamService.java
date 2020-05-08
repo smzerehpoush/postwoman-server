@@ -40,7 +40,7 @@ public class TeamService {
     private void validateRequest(CreateTeamDto requestDto, UserEntity owner) throws InvalidRequestException, GeneralDuplicateException {
         if (requestDto.getName() == null)
             throw new InvalidRequestException();
-        if (teamRepository.existsByOwner_idAndName(owner.getId(), requestDto.getName()))
+        if (teamRepository.existsByOwnerIdAndName(owner.getId(), requestDto.getName()))
             throw new GeneralDuplicateException("team-name", requestDto.getName());
     }
 

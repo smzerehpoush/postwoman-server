@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
  * @author mahdiyar
  */
 public class ExpiredTokenException extends ServiceException {
-    private String token;
+    private final String token;
 
     public ExpiredTokenException(String token) {
         this.token = token;

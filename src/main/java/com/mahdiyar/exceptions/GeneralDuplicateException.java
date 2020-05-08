@@ -4,8 +4,8 @@ package com.mahdiyar.exceptions;
  * @author mahdiyar
  */
 public class GeneralDuplicateException extends ServiceException {
-    private String field;
-    private String value;
+    private final String field;
+    private final String value;
 
     public GeneralDuplicateException(String field, String value) {
         super();

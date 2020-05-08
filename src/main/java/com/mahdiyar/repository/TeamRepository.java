@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TeamRepository extends JpaRepository<TeamEntity, Long> {
-    boolean existsByOwner_idAndName(long ownerId, String name);
+    boolean existsByOwnerIdAndName(long ownerId, String name);
 
     TeamEntity findByUniqueId(String uniqueId);
 }
