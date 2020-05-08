@@ -1,5 +1,7 @@
 package com.mahdiyar.model.entity;
 
+import com.mahdiyar.model.enums.VisibilityType;
+import com.mahdiyar.model.enums.WorkSpaceType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -46,6 +48,12 @@ public class WorkspaceEntity {
     private String name;
     @Column(name = "description")
     private String description;
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private WorkSpaceType type;
+    @Column(name = "visibility")
+    @Enumerated(EnumType.STRING)
+    private VisibilityType visibility;
     @ManyToOne
     @JoinColumn(name = "owner_user_id")
     private UserEntity owner;
@@ -68,13 +76,19 @@ public class WorkspaceEntity {
     @JoinTable(name = "workspaces_users",
             joinColumns = {@JoinColumn(name = "workspace_id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id")})
-    private Set<TeamEntity> users;
+    private Set<UserEntity> users;
 
-    public WorkspaceEntity(String name, String description, UserEntity owner) {
+    public WorkspaceEntity(String name, String description, UserEntity owner, WorkSpaceType type,
+                           VisibilityType visibility, Set<TeamEntity> teams, Set<UserEntity> users) {
         this.name = name;
         this.description = description;
         this.owner = owner;
+        this.type = type;
+        this.visibility = visibility;
+        this.teams = teams;
+        this.users = users;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -89,4 +103,5 @@ public class WorkspaceEntity {
     public int hashCode() {
         return Objects.hash(getId(), getUniqueId());
     }
+
 }

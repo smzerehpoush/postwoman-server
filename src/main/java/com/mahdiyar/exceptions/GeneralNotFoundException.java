@@ -11,7 +11,6 @@ public class GeneralNotFoundException extends ServiceException {
     private final String value;
 
     public GeneralNotFoundException(String item, String field, String value) {
-        super();
         this.item = item;
         this.field = field;
         this.value = value;

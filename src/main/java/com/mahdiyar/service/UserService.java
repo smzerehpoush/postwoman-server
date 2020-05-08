@@ -1,6 +1,7 @@
 package com.mahdiyar.service;
 
 import com.mahdiyar.exceptions.GeneralDuplicateException;
+import com.mahdiyar.exceptions.GeneralNotFoundException;
 import com.mahdiyar.exceptions.InvalidAuthDataException;
 import com.mahdiyar.exceptions.InvalidRequestException;
 import com.mahdiyar.model.dto.user.LoginRequestDto;
@@ -101,5 +102,12 @@ public class UserService {
 
     public List<UserDto> getUsers() {
         return userRepository.findAll().stream().map(UserDto::new).collect(Collectors.toList());
+    }
+
+    public UserEntity findByUniqueId(String uniqueId) throws GeneralNotFoundException {
+        UserEntity userEntity = userRepository.findByUniqueId(uniqueId);
+        if (userEntity == null)
+            throw new GeneralNotFoundException("user", "uniqueId", uniqueId);
+        return userEntity;
     }
 }
