@@ -1,0 +1,17 @@
+server:
+  port: 8085
+
+spring:
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+  datasource:
+    username: postwoman
+    password: postwoman
+    url: "jdbc:postgresql://localhost:5432/postwoman"
+me:
+  mahdiyar:
+    services:
+      token:
+        age: 40
