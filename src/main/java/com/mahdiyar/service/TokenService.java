@@ -4,6 +4,7 @@ import com.mahdiyar.exceptions.ExpiredTokenException;
 import com.mahdiyar.exceptions.TokenNotFoundException;
 import com.mahdiyar.model.entity.TokenEntity;
 import com.mahdiyar.model.entity.UserEntity;
+import com.mahdiyar.repository.TokenRepository;
 import com.mahdiyar.util.HashUtil;
 import javafx.util.Pair;
 import lombok.RequiredArgsConstructor;

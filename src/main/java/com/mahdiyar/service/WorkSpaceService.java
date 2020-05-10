@@ -1,6 +1,7 @@
 package com.mahdiyar.service;
 
 import com.mahdiyar.exceptions.GeneralNotFoundException;
+import com.mahdiyar.model.dto.UpdateWorkspaceDto;
 import com.mahdiyar.model.dto.workspace.CreateWorkspaceDto;
 import com.mahdiyar.model.dto.workspace.WorkspaceDto;
 import com.mahdiyar.model.entity.TeamEntity;
@@ -8,11 +9,11 @@ import com.mahdiyar.model.entity.UserEntity;
 import com.mahdiyar.model.entity.WorkspaceEntity;
 import com.mahdiyar.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,8 +23,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WorkSpaceService {
     private final WorkspaceRepository workspaceRepository;
-    private final UserService userService;
-    private final TeamService teamService;
+    private UserService userService;
+    private TeamService teamService;
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Autowired
+    public void setTeamService(TeamService teamService) {
+        this.teamService = teamService;
+    }
 
     public WorkspaceDto create(CreateWorkspaceDto requestDto, UserEntity user) throws GeneralNotFoundException {
         Set<TeamEntity> teams = findTeams(requestDto.getTeamIds());
@@ -79,5 +90,109 @@ public class WorkSpaceService {
             workspaceEntity.setUsers(new HashSet<>());
         workspaceEntity.getUsers().add(userEntity);
         return new WorkspaceDto(workspaceRepository.save(workspaceEntity));
+    }
+
+    public List<WorkspaceEntity> getUserWorkspaces(UserEntity userEntity) {
+        if (userEntity == null)
+            return Collections.emptyList();
+        List<WorkspaceEntity> workspaceEntities = new ArrayList<>();
+        List<Long> userTeams = teamService.getUserTeams(userEntity);
+        if (!CollectionUtils.isEmpty(userTeams))
+            workspaceEntities.addAll(workspaceRepository.getUserWorkspacesByTeams(userTeams));
+        workspaceEntities.addAll(workspaceRepository.getUserWorkspacesId(userEntity.getId()));
+        workspaceEntities.addAll(workspaceRepository.getUserWorkspacesByOwners(userEntity.getId()));
+        return workspaceEntities;
+    }
+
+    public int addTeamsOrUsers(UpdateWorkspaceDto requestDto, String workspaceId, UserEntity user) throws GeneralNotFoundException {
+        WorkspaceEntity workspaceEntity = findByUniqueId(workspaceId);
+        int updatedCount = 0;
+        updatedCount += addUsersToWorkspace(workspaceEntity, requestDto.getUserIds());
+        updatedCount += addTeamsToWorkspace(workspaceEntity, requestDto.getTeamIds());
+        return updatedCount;
+    }
+
+    private int addTeamsToWorkspace(WorkspaceEntity workspaceEntity, Set<String> teamIds) {
+        if (CollectionUtils.isEmpty(teamIds))
+            return 0;
+        int count = 0;
+        if (workspaceEntity.getTeams() == null)
+            workspaceEntity.setTeams(new HashSet<>());
+        for (String teamId : teamIds) {
+            try {
+                TeamEntity teamEntity = teamService.findByUniqueId(teamId);
+                if (workspaceEntity.getTeams().add(teamEntity))
+                    count++;
+            } catch (GeneralNotFoundException e) {
+//                do nothing
+            }
+        }
+        workspaceRepository.saveAndFlush(workspaceEntity);
+        return count;
+    }
+
+    private int addUsersToWorkspace(WorkspaceEntity workspaceEntity, Set<String> userIds) {
+        if (CollectionUtils.isEmpty(userIds))
+            return 0;
+        int count = 0;
+        if (workspaceEntity.getTeams() == null)
+            workspaceEntity.setTeams(new HashSet<>());
+        for (String userId : userIds) {
+            try {
+                UserEntity userEntity = userService.findByUniqueId(userId);
+                if (workspaceEntity.getUsers().add(userEntity))
+                    count++;
+            } catch (GeneralNotFoundException e) {
+//                do nothing
+            }
+        }
+        workspaceRepository.saveAndFlush(workspaceEntity);
+        return count;
+    }
+
+    private int removeTeamsFromWorkspace(WorkspaceEntity workspaceEntity, Set<String> teamIds) {
+        if (CollectionUtils.isEmpty(teamIds))
+            return 0;
+        int count = 0;
+        if (workspaceEntity.getTeams() == null)
+            workspaceEntity.setTeams(new HashSet<>());
+        for (String teamId : teamIds) {
+            try {
+                TeamEntity teamEntity = teamService.findByUniqueId(teamId);
+                if (workspaceEntity.getTeams().remove(teamEntity))
+                    count++;
+            } catch (GeneralNotFoundException e) {
+//                do nothing
+            }
+        }
+        workspaceRepository.saveAndFlush(workspaceEntity);
+        return count;
+    }
+
+    private int removeUsersFromWorkspace(WorkspaceEntity workspaceEntity, Set<String> userIds) {
+        if (CollectionUtils.isEmpty(userIds))
+            return 0;
+        int count = 0;
+        if (workspaceEntity.getTeams() == null)
+            workspaceEntity.setTeams(new HashSet<>());
+        for (String userId : userIds) {
+            try {
+                UserEntity userEntity = userService.findByUniqueId(userId);
+                if (workspaceEntity.getUsers().remove(userEntity))
+                    count++;
+            } catch (GeneralNotFoundException e) {
+//                do nothing
+            }
+        }
+        workspaceRepository.saveAndFlush(workspaceEntity);
+        return count;
+    }
+
+    public int removeTeamsOrUsers(UpdateWorkspaceDto requestDto, String workspaceId, UserEntity user) throws GeneralNotFoundException {
+        WorkspaceEntity workspaceEntity = findByUniqueId(workspaceId);
+        int updatedCount = 0;
+        updatedCount += removeUsersFromWorkspace(workspaceEntity, requestDto.getUserIds());
+        updatedCount += removeTeamsFromWorkspace(workspaceEntity, requestDto.getTeamIds());
+        return updatedCount;
     }
 }

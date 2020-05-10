@@ -10,9 +10,11 @@ import com.mahdiyar.model.entity.UserEntity;
 import com.mahdiyar.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +28,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TeamService {
     private final TeamRepository teamRepository;
-    private final UserService userService;
+    private UserService userService;
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
 
     public TeamDto create(CreateTeamDto requestDto, UserEntity owner) throws InvalidRequestException, GeneralDuplicateException {
         Set<UserEntity> members = findTeamMembers(requestDto);
@@ -85,5 +92,11 @@ public class TeamService {
         teamEntity.getMembers().add(user);
         teamEntity = teamRepository.save(teamEntity);
         return new TeamDto(teamEntity, teamEntity.getMembers());
+    }
+
+    public List<Long> getUserTeams(UserEntity userEntity) {
+        if (userEntity == null)
+            return Collections.emptyList();
+        return teamRepository.getUserTeams(userEntity.getId());
     }
 }

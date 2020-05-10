@@ -1,4 +1,4 @@
-package com.mahdiyar.service;
+package com.mahdiyar.repository;
 
 import com.mahdiyar.model.entity.TokenEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

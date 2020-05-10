@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class WorkspaceDto {
-    private long id;
     private String uniqueId;
     private String name;
     private String description;
@@ -22,7 +21,6 @@ public class WorkspaceDto {
     private UserDto owner;
 
     public WorkspaceDto(WorkspaceEntity entity) {
-        this.id = entity.getId();
         this.uniqueId = entity.getUniqueId();
         this.name = entity.getName();
         this.description = entity.getDescription();

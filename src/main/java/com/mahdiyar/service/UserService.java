@@ -5,22 +5,28 @@ import com.mahdiyar.exceptions.GeneralNotFoundException;
 import com.mahdiyar.exceptions.InvalidAuthDataException;
 import com.mahdiyar.exceptions.InvalidRequestException;
 import com.mahdiyar.model.dto.user.LoginRequestDto;
+import com.mahdiyar.model.dto.user.LoginResponseDto;
 import com.mahdiyar.model.dto.user.SignupRequestDto;
 import com.mahdiyar.model.dto.user.UserDto;
+import com.mahdiyar.model.dto.workspace.WorkspaceDto;
 import com.mahdiyar.model.entity.TokenEntity;
 import com.mahdiyar.model.entity.UserEntity;
+import com.mahdiyar.model.entity.WorkspaceEntity;
 import com.mahdiyar.repository.UserRepository;
 import com.mahdiyar.util.Constatns;
 import com.mahdiyar.util.HashUtil;
 import javafx.util.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -33,7 +39,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final TokenService tokenService;
+    private TokenService tokenService;
+    private WorkSpaceService workSpaceService;
+
+    @Autowired
+    public void setTokenService(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    @Autowired
+    public void setWorkSpaceService(WorkSpaceService workSpaceService) {
+        this.workSpaceService = workSpaceService;
+    }
 
     public void signup(SignupRequestDto requestDto) throws InvalidRequestException, GeneralDuplicateException {
         logger.info("trying to create user with username [{}] and email [{}]"
@@ -56,15 +73,35 @@ public class UserService {
             throw new GeneralDuplicateException("email", requestDto.getEmail());
     }
 
-    public void login(LoginRequestDto requestDto, HttpServletRequest request, HttpServletResponse response) throws InvalidRequestException, InvalidAuthDataException {
+    public LoginResponseDto login(LoginRequestDto requestDto, HttpServletRequest request, HttpServletResponse response) throws InvalidRequestException, InvalidAuthDataException {
         final UserEntity userEntity;
+        userEntity = login(requestDto);
+        final Pair<String, TokenEntity> tokenPair = tokenService.createToken(userEntity, request.getRemoteAddr());
+        setTokenInCookie(tokenPair.getKey(), tokenPair.getValue(), response);
+        List<WorkspaceDto> workspaces = findUserWorkspaces(userEntity);
+        return new LoginResponseDto(workspaces);
+    }
+
+    private List<WorkspaceDto> findUserWorkspaces(UserEntity userEntity) {
+        List<WorkspaceEntity> userWorkspaces = findUserWorkspaceEntities(userEntity);
+        return userWorkspaces.stream().map(WorkspaceDto::new).collect(Collectors.toList());
+    }
+
+    private List<WorkspaceEntity> findUserWorkspaceEntities(UserEntity userEntity) {
+        List<WorkspaceEntity> workspaceEntities = workSpaceService.getUserWorkspaces(userEntity);
+        if (CollectionUtils.isEmpty(workspaceEntities))
+            return Collections.emptyList();
+        return workspaceEntities;
+    }
+
+    private UserEntity login(LoginRequestDto requestDto) throws InvalidAuthDataException, InvalidRequestException {
+        UserEntity userEntity;
         if (!StringUtils.isEmpty(requestDto.getUsername()))
             userEntity = loginWithUsernameAndPassword(requestDto);
         else if (StringUtils.isEmpty(requestDto.getEmail()))
             userEntity = loginWithEmailAndPassword(requestDto);
         else throw new InvalidRequestException();
-        final Pair<String, TokenEntity> tokenPair = tokenService.createToken(userEntity, request.getRemoteAddr());
-        setTokenInCookie(tokenPair.getKey(), tokenPair.getValue(), response);
+        return userEntity;
     }
 
     private void setTokenInCookie(String plainToken, TokenEntity token, HttpServletResponse response) {
@@ -109,5 +146,9 @@ public class UserService {
         if (userEntity == null)
             throw new GeneralNotFoundException("user", "uniqueId", uniqueId);
         return userEntity;
+    }
+
+    public List<WorkspaceDto> getUserWorkspaces(UserEntity userEntity) {
+        return findUserWorkspaces(userEntity);
     }
 }
