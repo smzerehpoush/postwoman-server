@@ -11,7 +11,7 @@ import java.util.Set;
  */
 @Data
 @NoArgsConstructor
-public class UpdateWorkspaceDto {
+public class UpdateWorkspaceMembersDto {
     @NotNull
     private Set<String> teamIds;
     @NotNull

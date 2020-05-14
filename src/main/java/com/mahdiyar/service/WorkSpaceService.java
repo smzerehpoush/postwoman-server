@@ -1,7 +1,10 @@
 package com.mahdiyar.service;
 
 import com.mahdiyar.exceptions.GeneralNotFoundException;
-import com.mahdiyar.model.dto.UpdateWorkspaceDto;
+import com.mahdiyar.model.BaseCollectionModel;
+import com.mahdiyar.model.CollectionModel;
+import com.mahdiyar.model.dto.UpdateWorkspaceMembersDto;
+import com.mahdiyar.model.dto.collection.CollectionStructureModel;
 import com.mahdiyar.model.dto.workspace.CreateWorkspaceDto;
 import com.mahdiyar.model.dto.workspace.WorkspaceDto;
 import com.mahdiyar.model.entity.TeamEntity;
@@ -104,7 +107,7 @@ public class WorkSpaceService {
         return workspaceEntities;
     }
 
-    public int addTeamsOrUsers(UpdateWorkspaceDto requestDto, String workspaceId, UserEntity user) throws GeneralNotFoundException {
+    public int addMembers(UpdateWorkspaceMembersDto requestDto, String workspaceId, UserEntity user) throws GeneralNotFoundException {
         WorkspaceEntity workspaceEntity = findByUniqueId(workspaceId);
         int updatedCount = 0;
         updatedCount += addUsersToWorkspace(workspaceEntity, requestDto.getUserIds());
@@ -188,11 +191,39 @@ public class WorkSpaceService {
         return count;
     }
 
-    public int removeTeamsOrUsers(UpdateWorkspaceDto requestDto, String workspaceId, UserEntity user) throws GeneralNotFoundException {
+    public int removeMembers(UpdateWorkspaceMembersDto requestDto, String workspaceId, UserEntity user) throws GeneralNotFoundException {
         WorkspaceEntity workspaceEntity = findByUniqueId(workspaceId);
         int updatedCount = 0;
         updatedCount += removeUsersFromWorkspace(workspaceEntity, requestDto.getUserIds());
         updatedCount += removeTeamsFromWorkspace(workspaceEntity, requestDto.getTeamIds());
         return updatedCount;
+    }
+
+    public List<BaseCollectionModel> getCollections(String workspaceId, UserEntity user) throws GeneralNotFoundException {
+        WorkspaceEntity workspaceEntity = findByUniqueId(workspaceId);
+        checkUserInWorkspace(workspaceEntity, user);
+        return null;
+    }
+
+    private void checkUserInWorkspace(WorkspaceEntity workspaceEntity, UserEntity user) {
+        // TODO: 5/14/20 authenticate user in workspace
+
+    }
+
+    public CollectionModel getCollection(String workspaceId, String collectionId, UserEntity user) throws GeneralNotFoundException {
+        WorkspaceEntity workspaceEntity = findByUniqueId(workspaceId);
+        checkUserInWorkspace(workspaceEntity, user);
+        return null;
+    }
+
+    public Void updateWorkspaceCollection(
+            String workspaceId,
+            String collectionId,
+            CollectionStructureModel collectionStructureModel,
+            UserEntity user)
+            throws GeneralNotFoundException {
+        WorkspaceEntity workspaceEntity = findByUniqueId(workspaceId);
+        checkUserInWorkspace(workspaceEntity, user);
+        return null;
     }
 }

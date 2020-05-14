@@ -1,5 +1,7 @@
 package com.mahdiyar.model.entity;
 
+import com.mahdiyar.model.converter.CollectionStructureConverter;
+import com.mahdiyar.model.dto.collection.CollectionStructureModel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -50,7 +52,8 @@ public class CollectionEntity {
     private UserEntity owner;
 
     @Column(name = "structure", columnDefinition = "jsonb")
-    private String structure;
+    @Convert(converter = CollectionStructureConverter.class)
+    private CollectionStructureModel structure;
 
     public CollectionEntity(String name, String description, UserEntity owner) {
         this.name = name;
