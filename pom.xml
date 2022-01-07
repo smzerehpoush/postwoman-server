@@ -15,7 +15,7 @@
         <lombok.version>1.18.12</lombok.version>
         <springboot.version>2.2.2.RELEASE</springboot.version>
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.0.206</h2.version>
         <swagger.version>2.9.2</swagger.version>
         <postgresql.version>42.2.8</postgresql.version>
     </properties>
